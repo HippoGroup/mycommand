@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+
+    <property name="charset" value="UTF-8"/>
+
+    <contextName>mycommand-spring-boot-sample-annotation</contextName>
+
+    <!--  开发使用日志输出到本模块目录logs文件夹中  -->
+    <property name="log.path" value="./logs/"/>
+
+    <!--  服务器日志文件输出  -->
+    <!--	<property name="log.path" value="/home/admin/tally-book/logs" />-->
+
+    <!-- 调试以上级别日志输出模板 -->
+    <property name="log.debug.pattern"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level --- [%thread] %logger{20} - %msg%n"/>
+
+    <!-- 警告以上级别日志输出模板 -->
+    <property name="log.warn.pattern"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level --- [%thread] %logger{20} - [%method,%line] - %msg%n"/>
+
+    <!-- 控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${log.warn.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <!-- 信息级别日志文件输出  -->
+    <appender name="file-info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/sys-info.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- 日志最大的历史 100天 -->
+            <maxHistory>100</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.debug.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 警告级别日志文件输出  -->
+    <appender name="file-warn" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-warn.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/sys-warn.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- 日志最大的历史 100天 -->
+            <maxHistory>100</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.warn.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 错误级别日志文件输出 -->
+    <appender name="file-error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/sys-error.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- 日志最大的历史 100天 -->
+            <maxHistory>100</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.warn.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 显示形成的sql、使用的参数、结果集 -->
+    <logger name="java.sql" level="debug"/>
+    <logger name="org.springframework.jdbc" level="debug"/>
+    <logger name="com.apache.ibatis" level="debug"/>
+    <logger name="java.sql.Connection" level="debug"/>
+    <logger name="java.sql.Statement" level="debug"/>
+    <logger name="java.sql.PreparedStatement" level="debug"/>
+
+    <!-- 日志 -->
+    <root level="debug">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file-info"/>
+        <appender-ref ref="file-warn"/>
+        <appender-ref ref="file-error"/>
+    </root>
+
+</configuration>

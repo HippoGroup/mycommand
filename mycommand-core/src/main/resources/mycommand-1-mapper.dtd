@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!--
+
+               Copyright 2009-2021 the original author or authors.
+
+               Licensed under the Apache License, Version 2.0 (the "License");
+               you may not use this file except in compliance with the License.
+               You may obtain a copy of the License at
+
+                  http://www.apache.org/licenses/LICENSE-2.0
+
+               Unless required by applicable law or agreed to in writing, software
+               distributed under the License is distributed on an "AS IS" BASIS,
+               WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+               See the License for the specific language governing permissions and
+               limitations under the License.
+
+        -->
+        <!ELEMENT mapper (command* | async* | sync*)+>
+        <!ATTLIST mapper
+                namespace CDATA #IMPLIED
+                >
+
+        <!-- 新增约束 -->
+        <!-- platformId 平台标识 -->
+        <!ELEMENT async (#PCDATA | include | trim | foreach | choose | if | bind)*>
+        <!ATTLIST async
+                id CDATA #REQUIRED
+                parameterType CDATA #IMPLIED
+                timeout CDATA #IMPLIED
+                platformId CDATA #IMPLIED
+                exitValueNumber CDATA #IMPLIED
+                >
+
+        <!ELEMENT sync (#PCDATA | include | trim | foreach | choose | if | bind)*>
+        <!ATTLIST sync
+                id CDATA #REQUIRED
+                parameterType CDATA #IMPLIED
+                timeout CDATA #IMPLIED
+                platformId CDATA #IMPLIED
+                exitValueNumber CDATA #IMPLIED
+                >
+
+        <!-- Dynamic -->
+
+        <!ELEMENT include EMPTY>
+        <!ATTLIST include
+                refid CDATA #REQUIRED
+                >
+
+        <!ELEMENT bind EMPTY>
+        <!ATTLIST bind
+                name CDATA #REQUIRED
+                value CDATA #REQUIRED
+                >
+
+        <!-- 新增约束 -->
+        <!ELEMENT command (#PCDATA | include | trim | foreach | choose | if | bind)*>
+        <!ATTLIST command
+                id CDATA #REQUIRED
+                databaseId CDATA #IMPLIED
+                platformId CDATA #IMPLIED
+                >
+
+        <!ELEMENT trim (#PCDATA | include | trim | foreach | choose | if | bind)*>
+        <!ATTLIST trim
+                prefix CDATA #IMPLIED
+                prefixOverrides CDATA #IMPLIED
+                suffix CDATA #IMPLIED
+                suffixOverrides CDATA #IMPLIED
+                >
+
+        <!ELEMENT foreach (#PCDATA | include | trim | foreach | choose | if | bind)*>
+        <!ATTLIST foreach
+                collection CDATA #REQUIRED
+                nullable (true|false) #IMPLIED
+                item CDATA #IMPLIED
+                index CDATA #IMPLIED
+                open CDATA #IMPLIED
+                close CDATA #IMPLIED
+                separator CDATA #IMPLIED
+                >
+
+        <!ELEMENT choose (when* , otherwise?)>
+        <!ELEMENT when (#PCDATA | include | trim | foreach | choose | if | bind)*>
+        <!ATTLIST when
+                test CDATA #REQUIRED
+                >
+        <!ELEMENT otherwise (#PCDATA | include | trim | foreach | choose | if | bind)*>
+
+        <!ELEMENT if (#PCDATA | include | trim | foreach | choose | if | bind)*>
+        <!ATTLIST if
+                test CDATA #REQUIRED
+                >
+
+

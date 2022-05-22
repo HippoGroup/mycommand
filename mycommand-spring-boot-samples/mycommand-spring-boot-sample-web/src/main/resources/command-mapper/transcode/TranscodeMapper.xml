@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//hippocp.com//DTD Mapper 1.0//EN"
+        "http://hippocp.com/dtd/mycommand-1-mapper.dtd">
+<!--绑定接口-->
+<mapper namespace="sample.mycommand.web.mapper.TranscodingCommandMapper">
+
+    <command id="ffmpeg">
+        ffmpeg
+    </command>
+
+    <!-- 设想：ffmpeg 命令标签会进行参数顺序优化重排 ffmpeg 可执行头命令拼接 -->
+    <sync id="simpleTranscode">
+        -v
+        <choose>
+            <when test=' loglevel == "w" '>
+                warn
+            </when>
+            <when test=' loglevel == "e" '>
+                error
+            </when>
+            <otherwise>
+                info
+            </otherwise>
+        </choose>
+        -i #{inputPath}
+        -c:v h264_nvenc
+        -b:v 7000k
+        -r 25
+        -s 1920x1080
+        -aspect 16:9
+        -c:a mp2
+        -b:a 48000
+        -ac 2
+        -b:a 192k
+        <!-- #{}代表处理引用 -->
+        #{outputPath}
+        -y
+    </sync>
+
+    <sync id="syncHardwareTranscoding"
+          exitValueNumber="0" platformId="windows" timeout="86400">
+        <include refid="ffmpeg"/>
+        -v info
+        <choose>
+            <when test=' overwrite != null and overwrite == "1" '>
+                -y
+            </when>
+            <when test=' overwrite != null and overwrite == "0" '>
+                -n
+            </when>
+            <otherwise>
+                -y
+            </otherwise>
+        </choose>
+        -c:v h264_cuvid
+        -hwaccel_device 0
+        -hwaccel cuda
+        -hwaccel_output_format cuda
+        -deint adaptive
+        <if test="videoWidth != null and videoHeight != null and videoWidth.length() != 0 and videoHeight.length() != 0">
+            -resize ${videoWidth}x${videoHeight}
+        </if>
+        -drop_second_field true
+        -i
+        <!-- 执行时，换行符（\n \r \r\n \n\r）、制表符（\t）统统替换为空格，单空格多空格无所谓 -->
+        <!-- 可通过日志查看可读性好的命令 -->
+        #{inputPath}
+        -c:v h264_nvenc
+        -c:a aac
+        -b:v 8000k
+        -r 25
+        -aspect 16:9
+        -b:a 128k
+        -ar 48000
+        -ac 2
+        -rc cbr
+        -profile:v high
+        -level 4.0
+        -rc-lookahead 15
+        -dpb_size 3
+        -minrate 8000k
+        -maxrate 8000k
+        -g 25
+        -bf 2
+        -flags +cgop
+        -bufsize 1600k
+        -muxrate 9000k
+        #{outputPath}
+    </sync>
+
+    <sync id="syncHardwareTranscodingReturnStream"
+          exitValueNumber="0" platformId="windows" timeout="86400">
+        <include refid="ffmpeg"/>
+        -v info
+        <choose>
+            <when test=' param.overwrite != null and param.overwrite == "1" '>
+                -y
+            </when>
+            <when test=' param.overwrite != null and param.overwrite == "0" '>
+                -n
+            </when>
+            <otherwise>
+                -y
+            </otherwise>
+        </choose>
+        -c:v h264_cuvid
+        -hwaccel_device 0
+        -hwaccel cuda
+        -hwaccel_output_format cuda
+        -deint adaptive
+        <if test="param.videoWidth != null and param.videoHeight != null and param.videoWidth.length() != 0 and param.videoHeight.length() != 0">
+            -resize ${param.videoWidth}x${param.videoHeight}
+        </if>
+        -drop_second_field true
+        -i
+        <!-- 执行时，换行符（\n \r \r\n \n\r）、制表符（\t）统统替换为空格，单空格多空格无所谓 -->
+        <!-- 可通过日志查看可读性好的命令 -->
+        #{param.inputPath}
+        -c:v h264_nvenc
+        -c:a aac
+        -b:v 8000k
+        -r 25
+        -aspect 16:9
+        -b:a 128k
+        -ar 48000
+        -ac 2
+        -rc cbr
+        -profile:v high
+        -level 4.0
+        -rc-lookahead 15
+        -dpb_size 3
+        -minrate 8000k
+        -maxrate 8000k
+        -g 25
+        -bf 2
+        -flags +cgop
+        -bufsize 1600k
+        -muxrate 9000k
+        #{param.outputPath}
+    </sync>
+
+    <!--  parameterType 可以省略由程序自动获取  -->
+    <!-- 只使用需要的参数，service负责处理 TranscodingParam -> NeedParam -->
+    <!--    databaseId="windows"-->
+    <async id="asyncHardwareTranscoding"
+           exitValueNumber="0" platformId="windows" timeout="86400">
+        <include refid="ffmpeg"/>
+        -v info
+        <choose>
+            <when test=' overwrite != null and overwrite == "1" '>
+                -y
+            </when>
+            <when test=' overwrite != null and overwrite == "0" '>
+                -n
+            </when>
+            <otherwise>
+                -y
+            </otherwise>
+        </choose>
+        -c:v h264_cuvid
+        -hwaccel_device 0
+        -hwaccel cuda
+        -hwaccel_output_format cuda
+        -deint adaptive
+        <if test="videoWidth != null and videoHeight != null and videoWidth.length() != 0 and videoHeight.length() != 0">
+            -resize ${videoWidth}x${videoHeight}
+        </if>
+        -drop_second_field true
+        -i
+        <!-- 执行时，换行符（\n \r \r\n \n\r）、制表符（\t）统统替换为空格，单空格多空格无所谓 -->
+        <!-- 可通过日志查看可读性好的命令 -->
+        #{inputPath}
+        -c:v h264_nvenc
+        -c:a aac
+        -b:v 8000k
+        -r 25
+        -aspect 16:9
+        -b:a 128k
+        -ar 48000
+        -ac 2
+        -rc cbr
+        -profile:v high
+        -level 4.0
+        -rc-lookahead 15
+        -dpb_size 3
+        -minrate 8000k
+        -maxrate 8000k
+        -g 25
+        -bf 2
+        -flags +cgop
+        -bufsize 1600k
+        -muxrate 9000k
+        #{outputPath}
+    </async>
+
+    <async id="asyncHardwareTranscodingReturnStream"
+           exitValueNumber="0" platformId="windows" timeout="86400" parameterType="transcodingParam">
+        <include refid="ffmpeg"/>
+        -v info
+        <choose>
+            <when test=' param.overwrite != null and param.overwrite == "1" '>
+                -y
+            </when>
+            <when test=' param.overwrite != null and param.overwrite == "0" '>
+                -n
+            </when>
+            <otherwise>
+                -y
+            </otherwise>
+        </choose>
+        -c:v h264_cuvid
+        -hwaccel_device 0
+        -hwaccel cuda
+        -hwaccel_output_format cuda
+        -deint adaptive
+        <if test="param.videoWidth != null and param.videoHeight != null and param.videoWidth.length() != 0 and param.videoHeight.length() != 0">
+            -resize ${param.videoWidth}x${param.videoHeight}
+        </if>
+        -drop_second_field true
+        -i
+        <!-- 执行时，换行符（\n \r \r\n \n\r）、制表符（\t）统统替换为空格，单空格多空格无所谓 -->
+        <!-- 可通过日志查看可读性好的命令 -->
+        #{param.inputPath}
+        -c:v h264_nvenc
+        -c:a aac
+        -b:v 8000k
+        -r 25
+        -aspect 16:9
+        -b:a 128k
+        -ar 48000
+        -ac 2
+        -rc cbr
+        -profile:v high
+        -level 4.0
+        -rc-lookahead 15
+        -dpb_size 3
+        -minrate 8000k
+        -maxrate 8000k
+        -g 25
+        -bf 2
+        -flags +cgop
+        -bufsize 1600k
+        -muxrate 9000k
+        #{param.outputPath}
+    </async>
+
+    <async id="hardwareTranscodingAsync"
+           exitValueNumber="0" platformId="windows" timeout="86400">
+        <include refid="ffmpeg"/>
+        -v info
+        <choose>
+            <when test=' param.overwrite != null and param.overwrite == "1" '>
+                -y
+            </when>
+            <when test=' param.overwrite != null and param.overwrite == "0" '>
+                -n
+            </when>
+            <otherwise>
+                -y
+            </otherwise>
+        </choose>
+        -c:v h264_cuvid
+        -hwaccel_device 0
+        -hwaccel cuda
+        -hwaccel_output_format cuda
+        -deint adaptive
+        <if test="param.videoWidth != null and param.videoHeight != null and param.videoWidth.length() != 0 and param.videoHeight.length() != 0">
+            -resize ${param.videoWidth}x${param.videoHeight}
+        </if>
+        -drop_second_field true
+        -i
+        <!-- 执行时，换行符（\n \r \r\n \n\r）、制表符（\t）统统替换为空格，单空格多空格无所谓 -->
+        <!-- 可通过日志查看可读性好的命令 -->
+        #{param.inputPath}
+        -c:v h264_nvenc
+        -c:a aac
+        -b:v 8000k
+        -r 25
+        -aspect 16:9
+        -b:a 128k
+        -ar 48000
+        -ac 2
+        -rc cbr
+        -profile:v high
+        -level 4.0
+        -rc-lookahead 15
+        -dpb_size 3
+        -minrate 8000k
+        -maxrate 8000k
+        -g 25
+        -bf 2
+        -flags +cgop
+        -bufsize 1600k
+        -muxrate 9000k
+        #{param.outputPath}
+    </async>
+
+</mapper>

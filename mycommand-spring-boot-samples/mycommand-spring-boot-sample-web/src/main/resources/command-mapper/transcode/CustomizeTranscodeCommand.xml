@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//hippocp.com//DTD Mapper 1.0//EN"
+        "http://hippocp.com/dtd/mycommand-1-mapper.dtd">
+<!--绑定接口-->
+<mapper namespace="sample.mycommand.web.mapper.CustomizeTranscodeCommand">
+
+    <command id="ffmpeg">
+        ffmpeg
+    </command>
+
+    <async id="asyncCustomizeTranscode" exitValueNumber="0" timeout="86400">
+        ${customizeCommand}
+    </async>
+
+</mapper>
